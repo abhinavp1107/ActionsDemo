@@ -19,5 +19,5 @@ jobs:
                 GREETING: ${{ secrets.GREET }}
               run: |
                 echo "Environment: ${{ inputs.environment }}"
-                echo "${{ secrets.GREETING }}"
+                echo "${{ env.GREETING }}"
             
