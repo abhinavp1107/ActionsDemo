@@ -15,16 +15,17 @@ jobs:
         if: github.ref == 'refs/heads/dev'
         shell: bash
         run: |
-          echo "1234567890" > math-homework.txt
-          echo "everest-dev" >> math-homework.txt
+          echo ${{ secrets.DEV_ACC_ID }} > math-homework.txt
+          echo ${{ secrets.DEV_STACK_NAME }} >> math-homework.txt
+          echo 'dev' >> math-homework.txt
         
       - name: set main
         if: github.ref == 'refs/heads/main'
         shell: bash
         run: |
-          echo "0987654321" > math-homework.txt
-          echo "everest-main" >> math-homework.txt
-        
+          echo ${{ secrets.QA_ACC_ID }} > math-homework.txt
+          echo ${{ secrets.QA_STACK_NAME }} >> math-homework.txt
+          echo 'main' >> math-homework.txt >> math-homework.txt
 
       - name: Upload math result
         uses: actions/upload-artifact@v3
