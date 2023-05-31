@@ -9,7 +9,7 @@ on:
 jobs:
     set_env_dev:
         if: github.ref == 'refs/heads/dev'
-        name: set_env_var_dev
+        name: set_env_dev
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
         
     set_env_main:
         if: github.ref == 'refs/heads/main'
-        name: set_env_var_main
+        name: set_env_main
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -26,7 +26,8 @@ jobs:
                 echo "acc_id=0987654321" >> $GITHUB_ENV
     
     display_env:
-        needs: set_env_dev || set_env_main
+        if: ${{always() }}
+        needs: [set_env_dev,set_env_main]
         name: display_env_var
         runs-on: ubuntu-latest
         steps:
