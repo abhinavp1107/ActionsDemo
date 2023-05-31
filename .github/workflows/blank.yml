@@ -10,18 +10,21 @@ jobs:
     name: set_var
     runs-on: ubuntu-latest
     steps:
+      
       - name: set dev
         shell: bash
         run: |
           echo "1234567890" > math-homework.txt
           echo "everest-dev" >> math-homework.txt
-      
+          if: github.ref == 'refs/heads/dev'
+
       - name: set main
         shell: bash
         run: |
           echo "0987654321" > math-homework.txt
           echo "everest-main" >> math-homework.txt
-          
+          if: github.ref == 'refs/heads/main'
+
       - name: Upload math result
         uses: actions/upload-artifact@v3
         with:
