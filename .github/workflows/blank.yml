@@ -30,4 +30,4 @@ jobs:
       - name: Run a one-line script
         run: |
           set -xe
-          echo Hello, main!
+          echo "${{ env.action_state }}"
