@@ -2,8 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "dev" ]
-  workflow_dispatch:
+    branches: [ "dev","main"]
 
 jobs:
   test_dev:
