@@ -6,30 +6,22 @@ on:
 
 jobs:
 
-  set_dev:
-    name: set_dev
-    if: github.ref == 'refs/heads/dev'
+  set_var:
+    name: set_var
     runs-on: ubuntu-latest
     steps:
-      - shell: bash
+      - name: set dev
+        shell: bash
         run: |
           echo "1234567890" > math-homework.txt
           echo "everest-dev" >> math-homework.txt
-      - name: Upload math result
-        uses: actions/upload-artifact@v3
-        with:
-          name: homework
-          path: math-homework.txt
-
-  set_main:
-    name: set_main
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - shell: bash
+      
+      - name: set main
+        shell: bash
         run: |
           echo "0987654321" > math-homework.txt
           echo "everest-main" >> math-homework.txt
+          
       - name: Upload math result
         uses: actions/upload-artifact@v3
         with:
@@ -38,8 +30,7 @@ jobs:
 
   display:
     name: Display results
-    if: ${{ always() }}
-    needs: ["set_dev", "set_main"]
+    needs: ["set_var"]
     runs-on: ubuntu-latest
     steps:
       - name: Download math result
