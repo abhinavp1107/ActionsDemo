@@ -33,4 +33,4 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - run: |
-                echo $GITHUB_ENV.acc_id
+                echo $GITHUB_ENV
