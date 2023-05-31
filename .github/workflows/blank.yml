@@ -14,6 +14,7 @@ jobs:
       - shell: bash
         run: |
           echo "1234567890" > math-homework.txt
+          echo "everest-dev" >> math-homework.txt
       - name: Upload math result
         uses: actions/upload-artifact@v3
         with:
@@ -28,6 +29,7 @@ jobs:
       - shell: bash
         run: |
           echo "0987654321" > math-homework.txt
+          echo "everest-main" >> math-homework.txt
       - name: Upload math result
         uses: actions/upload-artifact@v3
         with:
@@ -47,5 +49,7 @@ jobs:
       - name: Print the final result
         shell: bash
         run: |
-          value=`cat math-homework.txt`
-          echo The acc_id is $value
+          acc_id=`sed -n '1p' math-homework.txt`
+          echo The acc_id is $acc_id
+          stack_name=`sed -n '2p' math-homework.txt`
+          echo The stack_name is $stack_name
