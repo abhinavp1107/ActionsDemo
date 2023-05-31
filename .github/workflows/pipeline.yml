@@ -10,7 +10,7 @@ on:
                     - Dev
                     - Qa
 env:
-    GREET: ${{ secrets.GREET }}
+    GREET: ${{ vars.GREET }}
 jobs:
     deploy:
         runs-on: ubuntu-latest
