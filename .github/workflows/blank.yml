@@ -4,6 +4,9 @@ on:
   push:
     branches: [ "dev","main"]
 
+env:
+  cp: "aws"
+
 jobs:
 
   set_var:
@@ -58,3 +61,4 @@ jobs:
           echo "${{ env.acc_id }}"
           echo "${{env.stack_name}}"
           echo "${{env.environment}}"
+          echo ${{env.cp}}
