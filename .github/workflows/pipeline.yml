@@ -16,6 +16,6 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - run: |
-                echo "Environment: $ENVIRONMENT"
+                echo "Environment: $environment"
                 echo "$greet"
             
