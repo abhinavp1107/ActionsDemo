@@ -10,10 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run a one-line script
+
+      - name: set value
+        id: step_one
         run: |
           set -xe
-          echo Hello, dev!
+          echo "action_state=yellow" >> "$GITHUB_ENV"
+      - name: use value
+        id: step_two
+        run: |
+          set -xe
+          echo "${{ env.action_state }}"
   
   test_main:
     if: github.ref == 'refs/heads/main'
@@ -23,4 +30,4 @@ jobs:
       - name: Run a one-line script
         run: |
           set -xe
-          echo Hello, main!
+          echo "${{ env.action_state }}"
