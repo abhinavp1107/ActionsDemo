@@ -10,12 +10,12 @@ on:
                     - Dev
                     - Qa
 env:
-    GREET: ${{ vars.GREET }}
+    GREETING: ${{ vars.GREET }}
 jobs:
     deploy:
         runs-on: ubuntu-latest
         steps:
             - run: |
                 echo "Environment: ${{ inputs.environment }}"
-                echo "${{ env.GREET }}"
+                echo "${{ env.GREETING }}"
             
