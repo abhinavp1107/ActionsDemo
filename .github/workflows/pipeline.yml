@@ -9,13 +9,15 @@ on:
                 options:
                     - Dev
                     - Qa
-env:
-    GREETING: ${{ vars.GREET }}
+
 jobs:
     deploy:
         runs-on: ubuntu-latest
         steps:
-            - run: |
+            - name: Step 1
+              env:
+                GREETING: ${{ secrets.GREET }}
+              run: |
                 echo "Environment: ${{ inputs.environment }}"
-                echo "${{ env.GREETING }}"
+                echo "${{ secrets.GREETING }}"
             
