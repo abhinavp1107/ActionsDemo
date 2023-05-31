@@ -7,13 +7,20 @@ on:
       - main
 
 jobs:
-    set_env:
-        name: set env var in dev
+    set_env_dev:
         if: github.ref == 'refs/heads/dev'
+        name: set_env_var_dev
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v2
-        
         - run: |
             echo "acc_id=1234567890" >> $GITHUB_ENV
         
+    set_env_main:
+        if: github.ref == 'refs/heads/main'
+        name: set_env_var_main
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - run: |
+                echo "acc_id=0987654321" >> $GITHUB_ENV
