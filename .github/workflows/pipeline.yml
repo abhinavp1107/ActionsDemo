@@ -17,5 +17,5 @@ jobs:
         steps:
             - run: |
                 echo "Environment: ${{ inputs.environment }}"
-                echo "$env:GREET"
+                echo "${{ env.GREET }}"
             
