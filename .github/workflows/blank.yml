@@ -46,9 +46,7 @@ jobs:
         shell: bash
         run: |
           acc_id=`sed -n '1p' math-homework.txt`
-          echo The acc_id is $acc_id
           stack_name=`sed -n '2p' math-homework.txt`
-          echo The stack_name is $stack_name
         
       - name: Get the final result
         shell: bash
