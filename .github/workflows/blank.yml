@@ -5,29 +5,49 @@ on:
     branches: [ "dev","main"]
 
 jobs:
-  test_dev:
-    if: github.ref == 'refs/heads/dev'
+  job_1:
+    name: Add 3 and 7
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - shell: bash
+        run: |
+          expr 3 + 7 > math-homework.txt
+      - name: Upload math result for job 1
+        uses: actions/upload-artifact@v3
+        with:
+          name: homework
+          path: math-homework.txt
 
-      - name: set value
-        id: step_one
-        run: |
-          set -xe
-          echo "action_state=yellow" >> "$GITHUB_ENV"
-      - name: use value
-        id: step_two
-        run: |
-          set -xe
-          echo "${{ env.action_state }}"
-  
-  test_main:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+  job_2:
+    name: Multiply by 9
+    needs: job_1
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Run a one-line script
+      - name: Download math result for job 1
+        uses: actions/download-artifact@v3
+        with:
+          name: homework
+      - shell: bash
         run: |
-          set -xe
-          echo "${{ env.action_state }}"
+          value=`cat math-homework.txt`
+          expr $value \* 9 > math-homework.txt
+      - name: Upload math result for job 2
+        uses: actions/upload-artifact@v3
+        with:
+          name: homework
+          path: math-homework.txt
+
+  job_3:
+    name: Display results
+    needs: job_2
+    runs-on: macOS-latest
+    steps:
+      - name: Download math result for job 2
+        uses: actions/download-artifact@v3
+        with:
+          name: homework
+      - name: Print the final result
+        shell: bash
+        run: |
+          value=`cat math-homework.txt`
+          echo The result is $value
