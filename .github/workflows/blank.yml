@@ -46,8 +46,7 @@ jobs:
         shell: bash
         run: |
           acc_id=`sed -n '1p' math-homework.txt`
-          stack_name=`sed -n '2p' math-homework.txt`  
-          echo "$acc_id" > "$GITHUB_ENV"
+          echo "acc_id=$acc_id" >> "$GITHUB_ENV"
       
       - name: Print the final result
         shell: bash
