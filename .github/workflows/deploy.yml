@@ -1,8 +1,13 @@
 name: Deploy Service
 
+permissions:
+  contents: read
+  actions: write
+
 on:
   workflow_dispatch:
-  workflow_call:
+  repository_dispatch:
+    types: [trigger-deploy-workflow]
 
 jobs:
   build_package_deploy:

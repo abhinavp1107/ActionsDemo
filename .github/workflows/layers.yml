@@ -1,8 +1,13 @@
 name: Light Client Layer
 
+permissions:
+  contents: read
+  actions: write
+
 on:
   workflow_dispatch:
-  workflow_call:
+  repository_dispatch:
+    types: [trigger-layers-workflow]
 
 jobs:
   create_layer:

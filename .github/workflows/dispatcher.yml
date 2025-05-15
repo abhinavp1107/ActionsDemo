@@ -1,4 +1,8 @@
-name: Dispatcher
+name: Workflow Dispatcher
+
+permissions:
+  contents: read
+  actions: write
 
 on:
   push:
@@ -8,49 +12,51 @@ on:
       - dev
 
 jobs:
-  check-changes:
+  changes:
     runs-on: ubuntu-latest
     outputs:
-      only_layers: ${{ steps.filter.outputs.only_layers }}
-      others: ${{ steps.filter.outputs.others }}
+      layers: \${{ steps.filter.outputs.layers }}
+      other: \${{ steps.filter.outputs.other }}
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Get changed files
-        id: changes
-        run: |
-          echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')"
-
-      - name: Filter file changes
-        id: filter
-        run: |
-          files="${{ steps.changes.outputs.files }}"
-          only_layers=true
-          others=false
-
-          for file in $files; do
-            if [[ "$file" != layers/* && "$file" != layers.yml ]]; then
-              only_layers=false
-              others=true
-              break
-            fi
-          done
-
-          echo "::set-output name=only_layers::$only_layers"
-          echo "::set-output name=others::$others"
+    - uses: actions/checkout@v3
+    
+    - name: Check for file changes
+      uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          layers:
+            - 'layers/**'
+            - '.github/workflows/layers.yml'
+          other:
+            - '**'
+            - '!layers/**'
+            - '!.github/workflows/layers.yml'
 
   trigger-layers:
-    needs: check-changes
-    if: needs.check-changes.outputs.only_layers == 'true'
-    uses: ./.github/workflows/light_client.yml
+    needs: changes
+    if: needs.changes.outputs.layers == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger layers workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: \${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-layers-workflow
 
-  trigger-deploy-after-layers:
-    needs: trigger-layers
-    if: success()
-    uses: ./.github/workflows/deploy.yml
+  trigger-deploy:
+    needs: [changes, trigger-layers]
+    if: |
+      always() &&
+      (needs.changes.outputs.other == 'true' || 
+       
 
-  trigger-deploy-direct:
-    needs: check-changes
-    if: needs.check-changes.outputs.others == 'true'
-    uses: ./.github/workflows/deploy.yml
+(needs.changes.outputs.layers == 'true' && needs.trigger-layers.result == 'success'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: \${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-deploy-workflow
