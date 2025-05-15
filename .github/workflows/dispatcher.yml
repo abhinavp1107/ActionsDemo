@@ -16,7 +16,6 @@ jobs:
       - name: Get list of changed files
         id: changed
         run: |
-          git fetch origin dev --depth=2
           echo "CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Set trigger type
@@ -31,7 +30,7 @@ jobs:
   trigger-layers:
     needs: check-changes
     if: needs.check-changes.outputs.trigger == 'layers'
-    uses: ./.github/workflows/layers.yml
+    uses: ${{ github.repository }}/.github/workflows/layers.yml@dev
     secrets: inherit
 
   trigger-deploy:
@@ -39,5 +38,5 @@ jobs:
     if: |
       needs.check-changes.outputs.trigger == 'deploy' ||
       (needs.check-changes.outputs.trigger == 'layers' && success())
-    uses: ./.github/workflows/deploy.yml
+    uses: ${{ github.repository }}/.github/workflows/deploy.yml@dev
     secrets: inherit
