@@ -1,0 +1,27 @@
+name: Deploy Service
+
+on:
+  push:
+    branches:
+      - main
+      - qa
+      - dev
+    paths-ignore:
+      - 'layers/**'
+      - '.github/workflows/light_client.yml'
+  workflow_run:
+    workflows: [Light Client Layer]
+    types:
+      - completed
+
+jobs:
+  build_package_deploy:
+    name: build_package_deploy
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success')
+    steps:
+      - name: Deploy Service
+        shell: bash
+        run: |
+          echo "Service Deployed"
