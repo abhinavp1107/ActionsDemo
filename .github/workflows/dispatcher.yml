@@ -47,13 +47,8 @@ jobs:
 
   trigger-deploy:
     needs: [changes, trigger-layers]
-    if: |
-      always() &&
-      (needs.changes.outputs.other == 'true' || 
-       
-
-(needs.changes.outputs.layers == 'true' && needs.trigger-layers.result == 'success'))
     runs-on: ubuntu-latest
+    if: always() && (needs.changes.outputs.other == 'true' || (needs.changes.outputs.layers == 'true' && needs.trigger-layers.result == 'success'))
     steps:
       - name: Trigger deploy workflow
         uses: peter-evans/repository-dispatch@v2
