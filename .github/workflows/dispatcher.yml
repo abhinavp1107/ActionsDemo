@@ -1,44 +1,43 @@
-name: Dispatcher Workflow
+name: Dispatcher
 
 on:
   push:
     branches:
-      - main
-      - qa
-      - dev  # Replace with your branch name
+      - dev
 
 jobs:
-  check_changes:
+  check-changes:
     runs-on: ubuntu-latest
     outputs:
-      layers_changed: \${{ contains(github.event.head_commit.modified + github.event.head_commit.added, '.github/workflows/layers.yml') || contains(github.event.head_commit.modified + github.event.head_commit.added, 'layers/') }}
-      other_changed: \${{ steps.other_changes.outputs.other_changed }}
+      trigger: ${{ steps.set-trigger.outputs.trigger }}
     steps:
-      - id: other_changes
+      - uses: actions/checkout@v4
+
+      - name: Get list of changed files
+        id: changed
         run: |
-          if [[ ! -z "\$(git diff-tree --no-commit-id --name-only -r \${{ github.sha }} | grep -v -E '(.github/workflows/layers.yml|layers/)')" ]]; then
-            echo "::set-output name=other_changed::true"
+          git fetch origin dev --depth=2
+          echo "CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | tr '\n' ' ')" >> $GITHUB_ENV
+
+      - name: Set trigger type
+        id: set-trigger
+        run: |
+          echo "Changed files: $CHANGED_FILES"
+          if echo "$CHANGED_FILES" | grep -qE '^(layers/|.github/workflows/layers.yml)'; then
+            echo "trigger=layers" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=other_changed::false"
-          fi
+            echo "trigger=deploy" >> $GITHUB_OUTPUT
 
-  layers:
-    needs: check_changes
-    if: needs.check_changes.outputs.layers_changed == 'true'
+  trigger-layers:
+    needs: check-changes
+    if: needs.check-changes.outputs.trigger == 'layers'
     uses: ./.github/workflows/layers.yml
+    secrets: inherit
 
-  deploy_after_layers:
-    needs: [check_changes, layers]
-    if: needs.check_changes.outputs.layers_changed == 'true'
+  trigger-deploy:
+    needs: [check-changes, trigger-layers]
+    if: |
+      needs.check-changes.outputs.trigger == 'deploy' ||
+      (needs.check-changes.outputs.trigger == 'layers' && success())
     uses: ./.github/workflows/deploy.yml
-
-  deploy_direct:
-    needs: check_changes
-    if: needs.check_changes.outputs.layers_changed == 'false' && needs.check_changes.outputs.other_changed == 'true'
-    uses: ./.github/workflows/deploy.yml
-
-
-  deploy_after_layers_with_other:
-    needs: [check_changes, layers]
-    if: needs.check_changes.outputs.layers_changed == 'true' && needs.check_changes.outputs.other_changed == 'true'
-    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
