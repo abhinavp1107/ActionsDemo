@@ -6,9 +6,7 @@ on:
       - main
       - qa
       - dev
-    paths-ignore:
-      - 'layers/**'
-      - '.github/workflows/light_client.yml'
+    # No paths or paths-ignore here; we'll use a conditional in the job
   workflow_run:
     workflows: [Light Client Layer]
     types:
@@ -19,7 +17,15 @@ jobs:
     name: build_package_deploy
     timeout-minutes: 30
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success')
+    if: |
+      github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+      || (
+        github.event_name == 'push'
+        && (
+          contains(join(github.event.commits.*.added, ','), 'layers/')
+          || contains(join(github.event.commits.*.modified, ','), 'layers/')
+        ) == false
+      )
     steps:
       - name: Deploy Service
         shell: bash
