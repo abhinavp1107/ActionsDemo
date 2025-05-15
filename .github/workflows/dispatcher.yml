@@ -1,57 +1,42 @@
-name: Workflow Dispatcher
-
-permissions:
-  contents: read
-  actions: write
+name: Dispatcher Workflow
 
 on:
   push:
     branches:
-      - main
-      - qa
-      - dev
+      - main  # Replace with your branch name
 
 jobs:
-  changes:
+  check_changes:
     runs-on: ubuntu-latest
     outputs:
-      layers: \${{ steps.filter.outputs.layers }}
-      other: \${{ steps.filter.outputs.other }}
-    
+      layers_changed: \${{ contains(github.event.head_commit.modified + github.event.head_commit.added, '.github/workflows/layers.yml') || contains(github.event.head_commit.modified + github.event.head_commit.added, 'layers/') }}
+      other_changed: \${{ steps.other_changes.outputs.other_changed }}
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Check for file changes
-      uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          layers:
-            - 'layers/**'
-            - '.github/workflows/layers.yml'
-          other:
-            - '**'
-            - '!layers/**'
-            - '!.github/workflows/layers.yml'
+      - id: other_changes
+        run: |
+          if [[ ! -z "\$(git diff-tree --no-commit-id --name-only -r \${{ github.sha }} | grep -v -E '(.github/workflows/layers.yml|layers/)')" ]]; then
+            echo "::set-output name=other_changed::true"
+          else
+            echo "::set-output name=other_changed::false"
+          fi
 
-  trigger-layers:
-    needs: changes
-    if: needs.changes.outputs.layers == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger layers workflow
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: \${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-layers-workflow
+  layers:
+    needs: check_changes
+    if: needs.check_changes.outputs.layers_changed == 'true'
+    uses: ./.github/workflows/layers.yml
 
-  trigger-deploy:
-    needs: [changes, trigger-layers]
-    runs-on: ubuntu-latest
-    if: always() && (needs.changes.outputs.other == 'true' || (needs.changes.outputs.layers == 'true' && needs.trigger-layers.result == 'success'))
-    steps:
-      - name: Trigger deploy workflow
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: \${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-deploy-workflow
+  deploy_after_layers:
+    needs: [check_changes, layers]
+    if: needs.check_changes.outputs.layers_changed == 'true'
+    uses: ./.github/workflows/deploy.yml
+
+  deploy_direct:
+    needs: check_changes
+    if: needs.check_changes.outputs.layers_changed == 'false' && needs.check_changes.outputs.other_changed == 'true'
+    uses: ./.github/workflows/deploy.yml
+
+
+  deploy_after_layers_with_other:
+    needs: [check_changes, layers]
+    if: needs.check_changes.outputs.layers_changed == 'true' && needs.check_changes.outputs.other_changed == 'true'
+    uses: ./.github/workflows/deploy.yml

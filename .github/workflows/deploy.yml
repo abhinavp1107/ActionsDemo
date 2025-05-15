@@ -6,8 +6,6 @@ permissions:
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [trigger-deploy-workflow]
 
 jobs:
   build_package_deploy:
