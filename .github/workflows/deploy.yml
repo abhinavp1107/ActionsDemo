@@ -1,10 +1,8 @@
 name: Deploy Service
 
 on:
-  workflow_run:
-    workflows: [Light Client Layer]
-    types:
-      - completed
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
   build_package_deploy:

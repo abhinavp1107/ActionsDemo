@@ -1,0 +1,56 @@
+name: Dispatcher
+
+on:
+  push:
+    branches:
+      - main
+      - qa
+      - dev
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      only_layers: ${{ steps.filter.outputs.only_layers }}
+      others: ${{ steps.filter.outputs.others }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changes
+        run: |
+          echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')"
+
+      - name: Filter file changes
+        id: filter
+        run: |
+          files="${{ steps.changes.outputs.files }}"
+          only_layers=true
+          others=false
+
+          for file in $files; do
+            if [[ "$file" != layers/* && "$file" != layers.yml ]]; then
+              only_layers=false
+              others=true
+              break
+            fi
+          done
+
+          echo "::set-output name=only_layers::$only_layers"
+          echo "::set-output name=others::$others"
+
+  trigger-layers:
+    needs: check-changes
+    if: needs.check-changes.outputs.only_layers == 'true'
+    uses: ./.github/workflows/light_client.yml
+
+  trigger-deploy-after-layers:
+    needs: trigger-layers
+    if: success()
+    uses: ./.github/workflows/deploy.yml
+
+  trigger-deploy-direct:
+    needs: check-changes
+    if: needs.check-changes.outputs.others == 'true'
+    uses: ./.github/workflows/deploy.yml
