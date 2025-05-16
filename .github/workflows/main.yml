@@ -43,7 +43,7 @@ jobs:
           echo "OTHER_CHANGED=$OTHER_CHANGED"
 
       - name: Run Main script
-        run: python main.py
+        run: python .github/workflows/main.py
         env:
           LAYER_CHANGED: ${{ env.LAYER_CHANGED }}
           OTHER_CHANGED: ${{ env.OTHER_CHANGED }}
