@@ -31,23 +31,58 @@ jobs:
         run: |
           echo "Layer Changed: ${{ steps.filter.outputs.layers }}"
           echo "Other Changed: ${{ steps.filter.outputs.other }}"
+
+      - name: Set env variables for layer and other
+        run: |
+         echo "LAYER_CHANGED=${{ steps.filter.outputs.layers }}" >> $GITHUB_ENV
+         echo "OTHER_CHANGED=${{ steps.filter.outputs.other }}" >> $GITHUB_ENV
+
+      - name: Debug environment variables
+        run: |
+          echo "LAYER_CHANGED=$LAYER_CHANGED"
+          echo "OTHER_CHANGED=$OTHER_CHANGED"
+
+      - name: Run Main script
+        run: python main.py
+        env:
+          LAYER_CHANGED: ${{ env.LAYER_CHANGED }}
+          OTHER_CHANGED: ${{ env.OTHER_CHANGED }}
+
+      
+
+
+      # - name: Get changed files
+      #   run: |
+      #     echo "Changed files:"
+      #     git fetch origin ${{ github.event.before }} ${{ github.event.after }}
+      #     git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
+
+
+      # - name: Create the new account file and save the filepath to a variable
+      #   run: |
+      #     output=$(python .github/workflows/main.py '${{ toJson(github.event.client_payload) }}')
+      #     echo "FILE_PATH=$output" >> $GITHUB_ENV
  
-  light_client:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.layers_changed == 'true' && needs.check_changes.outputs.other_changed == 'false' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run light_client.yml
-        run: echo "Running light_client.yml"
+  # light_client:
+  #   needs: check_changes
+  #   if: ${{ needs.check_changes.outputs.layers_changed == 'true' && needs.check_changes.outputs.other_changed == 'false' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Run light_client.yml
+  #       run: echo "Running light_client.yml"
  
-  deploy:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.layers_changed == 'true' || needs.check_changes.outputs.other_changed == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for light_client if needed
-        if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}  
-        run: echo "Waiting for light_client.yml to complete"
+  # deploy:
+  #   needs: check_changes
+  #   if: ${{ needs.check_changes.outputs.layers_changed == 'true' || needs.check_changes.outputs.other_changed == 'true' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Wait for light_client if needed
+  #       if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}  
+  #       run: echo "Waiting for light_client.yml to complete"
  
-      - name: Run deploy.yml
-        run: echo "Running deploy.yml"
+  #     - name: Run deploy.yml
+  #       run: echo "Running deploy.yml"
+  #   elif: ${{ needs.check_changes.outputs.other_changed == 'true' }}
+  #       run: echo "Running deploy.yml for other changes"
+  #     - name: Run deploy.yml  
+  #       run: echo "Running deploy.yml for other changes"
