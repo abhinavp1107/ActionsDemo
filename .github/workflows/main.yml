@@ -1,47 +1,49 @@
 name: Conditional Workflow
- 
+
 on:
   push:
     paths:
+      - 'functions/**'
       - 'layers/**'
-      - '**/*'  # Other folders/files except `layers`
- 
+
 jobs:
   check_changes:
     runs-on: ubuntu-latest
     outputs:
+      functions_changed: ${{ steps.filter.outputs.functions }}
       layers_changed: ${{ steps.filter.outputs.layers }}
-      other_changed: ${{ steps.filter.outputs.other }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
- 
-      - name: Check folder changes
+
+      - name: Check for changes in folders
         id: filter
         uses: dorny/paths-filter@v2
         with:
           filters: |
+            functions:
+              - 'functions/**'
             layers:
               - 'layers/**'
-            other:
-              - '**/*'  # Any other folder/file except layers
- 
-  light_client:
+
+  light:
     needs: check_changes
-    if: ${{ needs.check_changes.outputs.layers_changed == 'true' && needs.check_changes.outputs.other_changed == 'false' }}
+    if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Run light_client.yml
-        run: echo "Running light_client.yml"
- 
+      - name: Run light.yaml
+        run: echo "Running light.yaml logic here"
+
   deploy:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.layers_changed == 'false' || needs.check_changes.outputs.layers_changed == 'true' }}
+    needs: 
+      - check_changes
+      - light  # Always wait for `light`, even if it didn't run
+    if: |
+      ${{
+        needs.check_changes.outputs.functions_changed == 'true' ||
+        needs.check_changes.outputs.layers_changed == 'true'
+      }}
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for light_client if needed
-        if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}
-        run: echo "Waiting for light_client.yml to complete"
- 
-      - name: Run deploy.yml
-        run: echo "Running deploy.yml"
+      - name: Run deploy.yaml
+        run: echo "Running deploy.yaml logic here"
