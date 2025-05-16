@@ -25,7 +25,6 @@ jobs:
               - 'layers/**'
             other:
               - 'fuctions/**'    # This will check all files/folders
-              - '!layers/**' # Exclude the `layers` folder
 
 
       - name: Debug output
