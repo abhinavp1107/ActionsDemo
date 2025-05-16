@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'layers/**'
-      - '**/!'layers/**'  # Other folders/files except `layers`
+      - 'functions/**'  # Other folders/files except `layers`
  
 jobs:
   check_changes:
@@ -24,7 +24,7 @@ jobs:
             layers:
               - 'layers/**'
             other:
-              - '**/!'layers/**'  # Any other folder/file except layers
+              - 'functions/**'  # Any other folder/file except layers
  
   light_client:
     needs: check_changes
