@@ -27,10 +27,10 @@ jobs:
               - '**/*'    # This will check all files/folders
               - '!layers/**' # Exclude the `layers` folder
 
-              
+
       - name: Debug output
         run: |
-          echo "Layer Changed: ${{ steps.filter.outputs.layer }}"
+          echo "Layer Changed: ${{ steps.filter.outputs.layers }}"
           echo "Other Changed: ${{ steps.filter.outputs.other }}"
  
   light_client:
