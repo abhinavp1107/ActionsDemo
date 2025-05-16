@@ -24,7 +24,7 @@ jobs:
             layers:
               - 'layers/**'
             other:
-              - '**/*'    # This will check all files/folders
+              - 'fuctions/**'    # This will check all files/folders
               - '!layers/**' # Exclude the `layers` folder
 
 
