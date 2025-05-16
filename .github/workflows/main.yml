@@ -35,9 +35,13 @@ jobs:
         run: echo "Running light.yaml logic here"  # Replace with actual logic
  
   deploy:
-    needs: [check_changes, light]
-    if: ${{ needs.check_changes.outputs.functions_changed == 'true' }}
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.folder1_changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for light if needed
+        if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}
+        run: echo "Waiting for light (was triggered)"
+ 
       - name: Run deploy.yaml
-        run: echo "Running deploy.yaml logic here"  # Replace with actual logic
+        run: echo "Running deploy.yaml"
