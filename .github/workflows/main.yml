@@ -5,8 +5,6 @@ on:
     paths:
       - 'layers/**'      # Trigger when there are changes in the `layers` folder
       - '**/*'          # Trigger when any file/folder changes
-    paths-ignore:
-      - 'layers/**'      # Ignore changes in the `layers` folder for other cases
  
 jobs:
   check_changes:
