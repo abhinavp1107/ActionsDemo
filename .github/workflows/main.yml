@@ -3,7 +3,7 @@ name: Conditional Workflow
 on:
   push:
     paths:
-      - 'layers/**'      # Trigger when there are changes in the `layers` folder
+      #- 'layers/**'      # Trigger when there are changes in the `layers` folder
       - '**/*'          # Trigger when any file/folder changes
  
 jobs:
