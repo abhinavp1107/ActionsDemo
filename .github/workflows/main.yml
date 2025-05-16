@@ -1,0 +1,43 @@
+name: Conditional Workflow
+ 
+on:
+  push:
+    paths:
+      - 'functions/**'
+      - 'layers/**'
+ 
+jobs:
+  check_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      functions_changed: ${{ steps.filter.outputs.functions }}
+      layers_changed: ${{ steps.filter.outputs.layers }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+ 
+      - name: Check for changes in folders
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            functions:
+              - 'functions/**'
+            layers:
+              - 'layers/**'
+ 
+  light:
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run light.yaml
+        run: echo "Running light.yaml logic here"  # Replace with actual logic
+ 
+  deploy:
+    needs: [check_changes, light]
+    if: ${{ needs.check_changes.outputs.functions_changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run deploy.yaml
+        run: echo "Running deploy.yaml logic here"  # Replace with actual logic
