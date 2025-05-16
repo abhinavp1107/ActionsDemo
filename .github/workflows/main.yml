@@ -10,6 +10,9 @@ on:
 jobs:
   check_changes:
     runs-on: ubuntu-latest
+    outputs:
+      layers_changed: ${{ steps.filter.outputs.layers }}
+      other_changed: ${{ steps.filter.outputs.other }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,9 +26,6 @@ jobs:
               - 'layers/**'
             other:
               - 'functions/**'    # This will check all files/folders
-    outputs:
-      layers_changed: ${{ steps.filter.outputs.layers }}
-      other_changed: ${{ steps.filter.outputs.other }}
 
 
       - name: Debug output
