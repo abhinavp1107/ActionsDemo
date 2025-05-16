@@ -4,7 +4,8 @@ on:
   push:
     paths:
       #- 'layers/**'      # Trigger when there are changes in the `layers` folder
-      - '**/*'          # Trigger when any file/folder changes
+      - 'layers/**'          # Trigger when any file/folder changes
+      - 'functions/**'       # Trigger when any file/folder changes
  
 jobs:
   check_changes:
@@ -24,7 +25,7 @@ jobs:
             layers:
               - 'layers/**'
             other:
-              - 'fuctions/**'    # This will check all files/folders
+              - 'functions/**'    # This will check all files/folders
 
 
       - name: Debug output
