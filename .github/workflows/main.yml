@@ -35,14 +35,14 @@ jobs:
       - name: Run light_client.yml
         run: echo "Running light_client.yml"
  
-  deploy:
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.layers_changed == 'false' || needs.check_changes.outputs.layers_changed == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for light_client if needed
-        if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}
-        run: echo "Waiting for light_client.yml to complete"
+  # deploy:
+  #   needs: check_changes
+  #   if: ${{ needs.check_changes.outputs.layers_changed == 'false' || needs.check_changes.outputs.layers_changed == 'true' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Wait for light_client if needed
+  #       if: ${{ needs.check_changes.outputs.layers_changed == 'true' }}
+  #       run: echo "Waiting for light_client.yml to complete"
  
-      - name: Run deploy.yml
-        run: echo "Running deploy.yml"
+  #     - name: Run deploy.yml
+  #       run: echo "Running deploy.yml"
