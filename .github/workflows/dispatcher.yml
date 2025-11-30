@@ -1,0 +1,42 @@
+name: Dispatcher
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      trigger: ${{ steps.set-trigger.outputs.trigger }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get list of changed files
+        id: changed
+        run: |
+          echo "CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | tr '\n' ' ')" >> $GITHUB_ENV
+
+      - name: Set trigger type
+        id: set-trigger
+        run: |
+          echo "Changed files: $CHANGED_FILES"
+          if echo "$CHANGED_FILES" | grep -qE '^(layers/|.github/workflows/layers.yml)'; then
+            echo "trigger=layers" >> $GITHUB_OUTPUT
+          else
+            echo "trigger=deploy" >> $GITHUB_OUTPUT
+
+  trigger-layers:
+    needs: check-changes
+    if: needs.check-changes.outputs.trigger == 'layers'
+    uses: ${{ github.repository }}/.github/workflows/layers.yml@dev
+    secrets: inherit
+
+  trigger-deploy:
+    needs: [check-changes, trigger-layers]
+    if: |
+      needs.check-changes.outputs.trigger == 'deploy' ||
+      (needs.check-changes.outputs.trigger == 'layers' && success())
+    uses: ${{ github.repository }}/.github/workflows/deploy.yml@dev
+    secrets: inherit

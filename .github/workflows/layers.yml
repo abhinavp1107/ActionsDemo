@@ -1,0 +1,22 @@
+name: Light Client Layer
+
+permissions:
+  contents: read
+  actions: write
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  
+
+jobs:
+  create_layer:
+    name: create_layer
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    # The 'if' condition is not needed because the workflow will only run if the specified paths are changed
+    steps:
+      - name: Create Layer Logic
+        shell: bash
+        run: |
+          echo "Layer Created"
